@@ -1,0 +1,28 @@
+version: '3.8'
+services:
+  mosquitto:
+    image: eclipse-mosquitto:2.0
+    ports:
+      - "1883:1883"
+      - "9001:9001"
+    volumes:
+      - ./mosquitto/config/mosquitto.conf:/mosquitto/config/mosquitto.conf
+      - ./mosquitto/data:/mosquitto/data
+      - ./mosquitto/log:/mosquitto/log
+    restart: always
+
+  backend:
+    build: ./backend
+    environment:
+      - BOT_TOKEN=${BOT_TOKEN}
+      - MQTT_BROKER=mosquitto
+      - MQTT_PORT=1883
+      - OFFER_TIMEOUT=30
+      - MAX_TAXIS=3
+
+  simulator:
+    build: ./simulator
+    environment:
+      - MQTT_BROKER=mosquitto
+      - MQTT_PORT=1883
+      - SIM_TAXI_COUNT=3
